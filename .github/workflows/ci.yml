@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [master, development]
+  pull_request:
+    branches: [master, development]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Keep the job names test, dco, source-branch: the rulesets require them.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+      - name: Test every package
+        run: |
+          for d in packages/*/*/; do
+            scripts/test.sh "$(basename "$d")"
+          done
+
+  dco:
+    # Dependabot commits cannot carry a Signed-off-by line.
+    if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify Signed-off-by on every commit
+        run: |
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          fail=0
+          for c in $(git rev-list --no-merges "$base..$head"); do
+            if ! git log -1 --format=%B "$c" | grep -qiE '^Signed-off-by: .+ <.+@.+>$'; then
+              echo "Missing Signed-off-by: $(git log -1 --format='%h %s' "$c")"
+              fail=1
+            fi
+          done
+          exit $fail
+
+  # Only the development branch (of this repo, not a fork) may be merged into master.
+  source-branch:
+    if: github.event_name == 'pull_request' && github.base_ref == 'master'
+    runs-on: ubuntu-latest
+    steps:
+      - name: PRs to master must come from development
+        run: |
+          if [ "${{ github.head_ref }}" != "development" ] || [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
+            echo "Pull requests to master must come from the development branch of ${{ github.repository }}."
+            exit 1
+          fi
