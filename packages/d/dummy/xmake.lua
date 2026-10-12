@@ -1,5 +1,5 @@
 package("dummy")
-    set_homepage("https://github.com/phineup/phineup-xmake-repo")
+    set_homepage("https://github.com/phineup/xmake-repo")
     set_kind("library", {headeronly = true})
     set_description("Placeholder package that keeps the repository testable. Replace with real packages.")
     set_license("MIT")

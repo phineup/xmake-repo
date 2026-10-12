@@ -1,4 +1,4 @@
-# Contributing to phineup-xmake-repo
+# Contributing to xmake-repo
 
 Thanks for your interest! This project is MIT licensed and welcomes contributions.
 

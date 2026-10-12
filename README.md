@@ -1,4 +1,4 @@
-# phineup-xmake-repo
+# xmake-repo
 
 Public [xmake](https://xmake.io) package repository maintained by Phineup.
 
@@ -7,7 +7,7 @@ Public [xmake](https://xmake.io) package repository maintained by Phineup.
 In your project's `xmake.lua`:
 
 ```lua
-add_repositories("phineup https://github.com/phineup/phineup-xmake-repo.git")
+add_repositories("phineup https://github.com/phineup/xmake-repo.git")
 add_requires("dummy")
 
 target("app")
@@ -19,7 +19,7 @@ target("app")
 Or globally:
 
 ```bash
-xmake repo --add phineup https://github.com/phineup/phineup-xmake-repo.git
+xmake repo --add phineup https://github.com/phineup/xmake-repo.git
 xmake repo -u
 ```
 
