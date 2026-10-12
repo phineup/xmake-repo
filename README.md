@@ -7,7 +7,7 @@ Public [xmake](https://xmake.io) package repository maintained by Phineup.
 In your project's `xmake.lua`:
 
 ```lua
-add_repositories("phineup https://github.com/phineup/xmake-repo.git")
+add_repositories("phineup https://github.com/phineup/xmake-repo.git master")
 add_requires("dummy")
 
 target("app")
@@ -19,12 +19,13 @@ target("app")
 Or globally:
 
 ```bash
-xmake repo --add phineup https://github.com/phineup/xmake-repo.git
+xmake repo --add phineup https://github.com/phineup/xmake-repo.git master
 xmake repo -u
 ```
 
-Pin a branch or tag with a third argument: `add_repositories("phineup <url> master")`.
-`master` is the latest stable snapshot; `development` is unreleased.
+**Always pass `master`.** Without a branch, xmake clones the default branch, which is
+`development` and contains unreleased package changes. `master` is the stable snapshot;
+you can also pin a release tag: `add_repositories("phineup <url> v1.0.0")`.
 
 ## Layout
 
