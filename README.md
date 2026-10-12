@@ -27,6 +27,24 @@ xmake repo -u
 `development` and contains unreleased package changes. `master` is the stable snapshot;
 you can also pin a release tag: `add_repositories("phineup <url> v1.0.0")`.
 
+## Packages
+
+| package | description | configs |
+|---|---|---|
+| `ratelimitd` | C++17 client SDK for the [ratelimitd](https://github.com/phineup/ratelimitd) rate limiting sidecar | `headeronly` (default `false`), `shared`, `debug`, `vs_runtime` |
+
+```lua
+add_requires("ratelimitd")                                  -- compiled static library
+-- add_requires("ratelimitd", {configs = {shared = true}})      -- shared library
+-- add_requires("ratelimitd", {configs = {headeronly = true}})  -- header-only (libcurl is still linked)
+
+set_languages("c++17")
+target("app")
+    set_kind("binary")
+    add_files("src/*.cpp")
+    add_packages("ratelimitd")
+```
+
 ## Layout
 
 ```
