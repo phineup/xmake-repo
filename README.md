@@ -7,7 +7,7 @@ Public [xmake](https://xmake.io) package repository maintained by Phineup.
 In your project's `xmake.lua`:
 
 ```lua
-add_repositories("phineup https://github.com/phineup/xmake-repo.git")
+add_repositories("phineup https://github.com/phineup/xmake-repo.git master")
 add_requires("dummy")
 
 target("app")
@@ -19,12 +19,31 @@ target("app")
 Or globally:
 
 ```bash
-xmake repo --add phineup https://github.com/phineup/xmake-repo.git
+xmake repo --add phineup https://github.com/phineup/xmake-repo.git master
 xmake repo -u
 ```
 
-Pin a branch or tag with a third argument: `add_repositories("phineup <url> master")`.
-`master` is the latest stable snapshot; `development` is unreleased.
+**Always pass `master`.** Without a branch, xmake clones the default branch, which is
+`development` and contains unreleased package changes. `master` is the stable snapshot;
+you can also pin a release tag: `add_repositories("phineup <url> v1.0.0")`.
+
+## Packages
+
+| package | description | configs |
+|---|---|---|
+| `ratelimitd` | C++17 client SDK for the [ratelimitd](https://github.com/phineup/ratelimitd) rate limiting sidecar | `headeronly` (default `false`), `shared`, `debug`, `vs_runtime` |
+
+```lua
+add_requires("ratelimitd")                                  -- compiled static library
+-- add_requires("ratelimitd", {configs = {shared = true}})      -- shared library
+-- add_requires("ratelimitd", {configs = {headeronly = true}})  -- header-only (libcurl is still linked)
+
+set_languages("c++17")
+target("app")
+    set_kind("binary")
+    add_files("src/*.cpp")
+    add_packages("ratelimitd")
+```
 
 ## Layout
 
