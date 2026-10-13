@@ -3,35 +3,24 @@ package("ratelimitd")
     set_description("C++17 client SDK for the ratelimitd rate limiting sidecar (compiled or header-only).")
     set_license("MIT")
 
-    -- ratelimitd has no release tag yet, so versions are pinned to a commit archive (SHA256 below).
-    -- Once v0.1.0 is tagged, replace the table + version function with:
-    --   add_urls("https://github.com/phineup/ratelimitd/archive/refs/tags/v$(version).tar.gz",
-    --            "https://github.com/phineup/ratelimitd.git")
-    -- and keep the same add_versions line with the tag tarball's SHA256.
-    local commits = {
-        ["0.1.0"] = "06865143e97460e50ea16a0b42a1b6398580857f"
-    }
-    add_urls("https://github.com/phineup/ratelimitd/archive/$(version).tar.gz", {
-        version = function (version) return commits[tostring(version)] end
-    })
-    add_versions("0.1.0", "ddbc1451737de6689b04492a12abdbc551732358ff6ae8debf9b07bd90d13650")
+    add_urls("https://github.com/phineup/ratelimitd/archive/refs/tags/v$(version).tar.gz",
+             "https://github.com/phineup/ratelimitd.git")
+    add_versions("1.1.0", "SHA256_PLACEHOLDER")
 
-    -- `shared`, `debug`, `pic`, `lto` and `vs_runtime` are the standard xmake configs.
     add_configs("headeronly", {description = "Use the header-only flavour (no library is built; libcurl is still linked).", default = false, type = "boolean"})
 
-    -- Consumers must compile with C++17 (set_languages("c++17")).
     -- libcurl is the default HTTP transport in both flavours.
     add_deps("libcurl")
 
     on_load(function (package)
         if package:config("headeronly") then
             package:set("kind", "library", {headeronly = true})
-            -- Switches <ratelimitd/ratelimitd.hpp> to include the implementation.
+            -- Makes <ratelimitd/ratelimitd.hpp> include the implementation.
             package:add("defines", "RATELIMITD_HEADER_ONLY")
         end
     end)
 
-    on_install("windows", "linux", "macosx", "bsd", "mingw", "msys", "android", "iphoneos", "cross", function (package)
+    on_install(function (package)
         local includedir = path.join("sdk", "cpp", "include")
 
         if package:config("headeronly") then
@@ -39,8 +28,8 @@ package("ratelimitd")
             return
         end
 
-        -- Build with xmake itself (not the upstream CMake) so toolchains, cross
-        -- compilation, runtimes and the libcurl dependency all come from xmake.
+        -- The upstream root xmake.lua also drives the tests and the Rust SDK, so use a
+        -- minimal one: toolchains, cross compilation and libcurl then all come from xmake.
         io.writefile("xmake.lua", [[
             add_rules("mode.release", "mode.debug")
             set_languages("c++17")
@@ -55,11 +44,11 @@ package("ratelimitd")
                     add_rules("utils.symbols.export_all", {export_classes = true})
                 end
         ]])
-        import("package.tools.xmake").install(package, {})
+        import("package.tools.xmake").install(package)
     end)
 
     on_test(function (package)
-        -- Compile and link against the library (or the headers) ...
+        -- Compiles and links against the library (or the headers) ...
         assert(package:check_cxxsnippets({test = [[
             #include <ratelimitd/ratelimitd.hpp>
             void test() {
@@ -70,8 +59,8 @@ package("ratelimitd")
             }
         ]]}, {configs = {languages = "c++17"}}))
 
-        -- ... and, when the host can run the result, exercise the JSON codec
-        -- through a fake transport (no network involved).
+        -- ... and, when the host can run the result, exercises the JSON codec through a
+        -- fake transport (no network involved).
         if not package:is_cross() then
             assert(package:check_cxxsnippets({test = [[
                 #include <ratelimitd/ratelimitd.hpp>
