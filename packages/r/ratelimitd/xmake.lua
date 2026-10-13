@@ -5,7 +5,7 @@ package("ratelimitd")
 
     add_urls("https://github.com/phineup/ratelimitd/archive/refs/tags/v$(version).tar.gz",
              "https://github.com/phineup/ratelimitd.git")
-    add_versions("1.1.0", "SHA256_PLACEHOLDER")
+    add_versions("1.1.0", "a931ab7a5764991d3bcd6fe646dbd1a1d8b6b219d342659c52d8cfec161cba74")
 
     add_configs("headeronly", {description = "Use the header-only flavour (no library is built; libcurl is still linked).", default = false, type = "boolean"})
 
